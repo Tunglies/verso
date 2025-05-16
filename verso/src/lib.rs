@@ -15,7 +15,7 @@ use std::{
 };
 pub use versoview_messages::{
     ConfigFromController as VersoviewSettings, CustomProtocol, CustomProtocolBuilder, Icon,
-    ProfilerSettings, UserScript,
+    ProfilerSettings, UserScript, WindowLevel,
 };
 use versoview_messages::{
     PositionType, SizeType, ToControllerMessage, ToVersoMessage, WebResourceRequestResponse,
@@ -295,6 +295,16 @@ impl VersoviewController {
     /// Show or hide the window
     pub fn set_visible(&self, visible: bool) -> Result<(), Box<ipc_channel::ErrorKind>> {
         self.sender.send(ToVersoMessage::SetVisible(visible))?;
+        Ok(())
+    }
+
+    /// Change the window level
+    pub fn set_window_level(
+        &self,
+        window_level: WindowLevel,
+    ) -> Result<(), Box<ipc_channel::ErrorKind>> {
+        self.sender
+            .send(ToVersoMessage::SetWindowLevel(window_level))?;
         Ok(())
     }
 
