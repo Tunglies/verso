@@ -438,7 +438,7 @@ impl Window {
                     compositor,
                     webview_id,
                     sender,
-                    InputEvent::MouseMove(MouseMoveEvent { point }),
+                    InputEvent::MouseMove(MouseMoveEvent::new(point)),
                 );
 
                 // handle Windows and Linux non-decoration window resize cursor
@@ -506,11 +506,7 @@ impl Window {
                     compositor,
                     webview_id,
                     sender,
-                    InputEvent::MouseButton(MouseButtonEvent {
-                        point,
-                        action,
-                        button,
-                    }),
+                    InputEvent::MouseButton(MouseButtonEvent::new(action, button, point)),
                 );
             }
             WindowEvent::PinchGesture { delta, .. } => {
@@ -649,10 +645,21 @@ impl Window {
                 forward_input_event(compositor, webview_id, sender, InputEvent::Keyboard(event));
             }
             WindowEvent::ThemeChanged(theme) => {
-                let _ = sender.send(EmbedderToConstellationMessage::ThemeChange(match theme {
+                let theme = match theme {
                     winit::window::Theme::Light => embedder_traits::Theme::Light,
                     winit::window::Theme::Dark => embedder_traits::Theme::Dark,
-                }));
+                };
+                for webview_id in self.tab_manager.tab_ids() {
+                    let _ = sender.send(EmbedderToConstellationMessage::ThemeChange(
+                        webview_id, theme,
+                    ));
+                }
+                if let Some(panel) = &self.panel {
+                    let _ = sender.send(EmbedderToConstellationMessage::ThemeChange(
+                        panel.webview.webview_id,
+                        theme,
+                    ));
+                }
             }
             e => log::trace!("Verso Window isn't supporting this window event yet: {e:?}"),
         }
@@ -962,7 +969,7 @@ impl Window {
         #[cfg(linux)]
         {
             if let Some(icon_image) = notification.icon_resource.as_ref().and_then(|icon| {
-                Image::from_rgba(icon.width as i32, icon.height as i32, icon.bytes().to_vec()).ok()
+                Image::from_rgba(icon.width as i32, icon.height as i32, icon.bytes.to_vec()).ok()
             }) {
                 display_notification.image_data(icon_image);
             }
