@@ -475,7 +475,14 @@ impl ResourceReaderMethods for ResourceReader {
                         "HSTS preload list not found, falling back to an empty list, to set this, put the list at '{}'",
                         path.display()
                     );
-                    r###"{ "entries": [] }"###.as_bytes()
+                    // This is made out of
+                    //
+                    // ```
+                    // let mut wtr = std::io::BufWriter::new(std::fs::File::create("map.fst")?);
+                    // let mut build = fst::MapBuilder::new(wtr)?;
+                    // build.finish()?;
+                    // ```
+                    b"\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12\x00\x00\x00\x00\x00\x00\x00Tk-\x0f"
                 }
                 _ => &[],
             }
