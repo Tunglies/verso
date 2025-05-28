@@ -38,8 +38,7 @@ cargo run
 - Install [Homebrew](https://brew.sh/) and then install other tools:
 
 ```sh
-brew install cmake pkg-config harfbuzz
-pip install mako
+brew install cmake pkg-config harfbuzz mako
 ```
 
 - Build & run:
